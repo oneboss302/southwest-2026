@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Southwest 2026 · A Family Road Trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sand:#e8d5b0;
+  --rust:#c4622d;
+  --slate:#1c2330;
+  --dusk:#2a3545;
+  --mist:#7a8fa6;
+  --sky:#5b9ec9;
+  --white:#ffffff;
+  --gold:#d4a843;
+  --ink:#0e1318;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--sand);overflow-x:hidden}
+
+/* ═══ LOADER ═══ */
+#loader{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;transition:opacity .6s ease}
+#loader.done{opacity:0;pointer-events:none}
+.loader-ring{width:48px;height:48px;border:2px solid rgba(212,168,67,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--mist)}
+
+/* ═══ PROGRESS BAR ═══ */
+#progress-bar{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--rust),var(--gold));z-index:9000;transition:width .1s linear}
+
+/* ═══ NAV ═══ */
+#site-nav{position:fixed;top:0;left:0;right:0;z-index:800;padding:.9rem 2rem;display:flex;align-items:center;justify-content:space-between;transition:background .3s,backdrop-filter .3s}
+#site-nav.scrolled{background:rgba(14,19,24,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(122,143,166,.12)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--white);text-decoration:none;letter-spacing:.02em}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:.25rem}
+.nav-link{background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);padding:.5rem .75rem;transition:color .2s;position:relative}
+.nav-link::after{content:'';position:absolute;bottom:0;left:.75rem;right:.75rem;height:1px;background:var(--gold);transform:scaleX(0);transition:transform .2s}
+.nav-link:hover{color:var(--sand)}
+.nav-link.active{color:var(--gold)}
+.nav-link.active::after{transform:scaleX(1)}
+@media(max-width:640px){.nav-links{display:none}}
+
+/* ═══ HERO ═══ */
+#hero{height:100vh;min-height:600px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+#hero-bg{position:absolute;inset:0;background:url('photos/hero/main.jpg') center/cover no-repeat;transform:scale(1.08);transition:transform 16s ease-out;filter:brightness(.38) saturate(1.1)}
+#hero-bg.loaded{transform:scale(1)}
+#hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(14,19,24,.7) 80%,var(--ink) 100%)}
+#hero-content{position:relative;text-align:center;padding:0 1.5rem;max-width:860px}
+.hero-pretitle{font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:block}
+#hero h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,9vw,6.5rem);font-weight:400;line-height:.95;color:var(--white)}
+#hero h1 em{display:block;font-style:italic;color:var(--sand)}
+.hero-tagline{margin-top:1.5rem;font-size:clamp(.9rem,2.2vw,1.1rem);font-weight:300;color:var(--mist);line-height:1.65}
+.hero-route{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem .25rem;margin-top:2rem}
+.route-stop{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sand);opacity:.8}
+.route-arrow{color:var(--rust);font-size:.8rem;opacity:.6}
+.hero-cta{display:inline-block;margin-top:2.5rem;padding:.75rem 2rem;border:1px solid rgba(212,168,67,.4);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);cursor:pointer;background:none;font-family:'Inter',sans-serif;transition:all .25s}
+.hero-cta:hover{background:rgba(212,168,67,.1);border-color:var(--gold)}
+
+/* scroll cue */
+.scroll-cue{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.6rem;color:rgba(122,143,166,.6);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;animation:cue 2.5s ease-in-out infinite}
+@keyframes cue{0%,100%{transform:translateX(-50%) translateY(0);opacity:.5}50%{transform:translateX(-50%) translateY(6px);opacity:1}}
+
+/* ═══ STATS STRIP ═══ */
+#stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(122,143,166,.12);border-bottom:1px solid rgba(122,143,166,.12)}
+.stat-cell{padding:2rem 1.5rem;text-align:center;border-right:1px solid rgba(122,143,166,.12)}
+.stat-cell:last-child{border-right:none}
+.stat-n{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:400;color:var(--white);line-height:1}
+.stat-l{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mist);margin-top:.5rem}
+@media(max-width:580px){#stats{grid-template-columns:repeat(2,1fr)}.stat-cell:nth-child(2){border-right:none}.stat-cell:nth-child(3){border-right:1px solid rgba(122,143,166,.12)}}
+
+/* ═══ MAP / ROUTE SECTION ═══ */
+#route-section{padding:5rem 0;max-width:1100px;margin:0 auto;padding-left:2rem;padding-right:2rem}
+.section-eyebrow{font-size:.65rem;letter-spacing:.28em;text-transform:uppercase;color:var(--rust);margin-bottom:1rem}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:400;color:var(--white);line-height:1.15;margin-bottom:1.5rem}
+.section-body{font-size:.95rem;line-height:1.8;color:var(--mist);max-width:580px}
+.route-timeline{margin-top:3.5rem;display:grid;gap:0}
+.timeline-item{display:grid;grid-template-columns:80px 1fr;gap:0 2rem;position:relative}
+.timeline-item:not(:last-child)::before{content:'';position:absolute;left:39px;top:2.5rem;bottom:-1rem;width:1px;background:rgba(122,143,166,.18)}
+.tl-date{padding-top:.15rem;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);text-align:right;line-height:1.6}
+.tl-dot{position:absolute;left:33px;top:.3rem;width:13px;height:13px;border-radius:50%;background:var(--dusk);border:2px solid var(--rust);transition:border-color .2s,background .2s}
+.timeline-item:hover .tl-dot{background:var(--rust)}
+.tl-content{padding:0 0 3rem 1.5rem;border-left:none}
+.tl-place{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:400;color:var(--white);margin-bottom:.35rem}
+.tl-desc{font-size:.85rem;line-height:1.7;color:var(--mist)}
+.tl-tag{display:inline-block;margin-top:.6rem;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;padding:.25rem .65rem;border:1px solid rgba(196,98,45,.35);color:var(--rust)}
+
+/* ═══ DAY SECTIONS ═══ */
+.day-section{padding:0 0 6rem}
+.day-hero{position:relative;height:420px;overflow:hidden;margin-bottom:3rem}
+.day-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.6) saturate(1.05);transition:transform .8s ease}
+.day-hero:hover img{transform:scale(1.03)}
+.day-hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(14,19,24,.65) 0%,transparent 60%),linear-gradient(to top,rgba(14,19,24,.8) 0%,transparent 50%)}
+.day-hero-content{position:absolute;bottom:0;left:0;right:0;padding:2.5rem 2.5rem 2.5rem}
+.day-number{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--rust);margin-bottom:.5rem}
+.day-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:400;color:var(--white);line-height:1.1}
+.day-subtitle{font-size:.8rem;letter-spacing:.08em;color:rgba(232,213,176,.7);margin-top:.4rem}
+.day-meta{position:absolute;top:1.5rem;right:2rem;text-align:right}
+.day-count-badge{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);background:rgba(14,19,24,.6);padding:.4rem .8rem;border:1px solid rgba(122,143,166,.2)}
+
+.day-body{max-width:1280px;margin:0 auto;padding:0 2rem}
+.day-intro{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-bottom:3rem;align-items:start}
+@media(max-width:700px){.day-intro{grid-template-columns:1fr}}
+.day-story{font-size:.95rem;line-height:1.9;color:var(--mist)}
+.day-story p+p{margin-top:1rem}
+.day-highlights{display:flex;flex-direction:column;gap:.75rem}
+.highlight-item{display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1rem;background:rgba(255,255,255,.03);border-left:2px solid var(--rust)}
+.hi-icon{font-size:1.1rem;flex-shrink:0;line-height:1.4}
+.hi-text{font-size:.82rem;line-height:1.6;color:var(--mist)}
+.hi-text strong{color:var(--sand);display:block;margin-bottom:.15rem;font-weight:500;font-size:.8rem}
+
+/* ═══ PHOTO GRID ═══ */
+.photo-grid{columns:4 180px;column-gap:5px}
+.photo-item{break-inside:avoid;margin-bottom:5px;cursor:pointer;overflow:hidden;position:relative;background:#111}
+.photo-item img{width:100%;height:auto;display:block;transition:transform .4s ease,filter .3s;filter:brightness(.88)}
+.photo-item:hover img{transform:scale(1.06);filter:brightness(1)}
+.photo-item .photo-num{position:absolute;bottom:0;right:0;background:rgba(14,19,24,.7);color:rgba(122,143,166,.7);font-size:.55rem;padding:.2rem .4rem;opacity:0;transition:opacity .2s}
+.photo-item:hover .photo-num{opacity:1}
+@media(max-width:500px){.photo-grid{columns:2 120px;column-gap:3px}.photo-item{margin-bottom:3px}}
+
+/* section divider */
+.canyon-rule{max-width:1280px;margin:0 auto 0;padding:0 2rem}
+.canyon-rule hr{border:none;border-top:1px solid rgba(122,143,166,.1)}
+
+/* ═══ LIGHTBOX ═══ */
+#lightbox{display:none;position:fixed;inset:0;z-index:2000;background:rgba(8,11,14,.97);flex-direction:column;align-items:center;justify-content:center}
+#lightbox.open{display:flex}
+#lb-frame{position:relative;max-width:94vw;max-height:88vh;display:flex;align-items:center;justify-content:center}
+#lb-img{max-width:92vw;max-height:86vh;object-fit:contain;display:block;transition:opacity .2s}
+#lb-img.loading{opacity:.3}
+#lb-close{position:fixed;top:1.2rem;right:1.5rem;background:none;border:none;cursor:pointer;color:var(--mist);font-size:1.6rem;line-height:1;transition:color .2s;z-index:10;width:2.5rem;height:2.5rem;display:flex;align-items:center;justify-content:center}
+#lb-close:hover{color:var(--white)}
+.lb-btn{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.06);border:none;cursor:pointer;color:var(--sand);width:3.5rem;height:5rem;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:10}
+.lb-btn:hover{background:rgba(255,255,255,.12)}
+#lb-prev{left:.5rem}
+#lb-next{right:.5rem}
+#lb-info{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);text-align:center}
+#lb-counter{font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mist)}
+#lb-day{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(122,143,166,.5);margin-top:.3rem}
+#lb-strip{display:flex;gap:4px;margin-top:.8rem;overflow-x:auto;max-width:min(700px,90vw);scrollbar-width:none}
+#lb-strip::-webkit-scrollbar{display:none}
+.strip-thumb{width:48px;height:36px;object-fit:cover;cursor:pointer;opacity:.4;transition:opacity .2s;flex-shrink:0;border:1.5px solid transparent}
+.strip-thumb.active{opacity:1;border-color:var(--gold)}
+.strip-thumb:hover{opacity:.8}
+
+/* ═══ FINALE ═══ */
+#finale{padding:7rem 2rem;text-align:center;background:linear-gradient(to bottom,var(--ink),var(--dusk),var(--ink));position:relative;overflow:hidden}
+#finale::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(196,98,45,.07),transparent)}
+.finale-number{font-family:'Playfair Display',serif;font-size:clamp(5rem,18vw,13rem);color:rgba(255,255,255,.04);line-height:1;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none}
+.finale-content{position:relative}
+.finale-eyebrow{font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--rust);margin-bottom:1.5rem}
+.finale-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,4rem);font-weight:400;color:var(--white);line-height:1.1;max-width:700px;margin:0 auto 1.5rem}
+.finale-body{font-size:.95rem;line-height:1.85;color:var(--mist);max-width:520px;margin:0 auto}
+.finale-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:4rem;max-width:900px;margin-left:auto;margin-right:auto}
+.finale-img{aspect-ratio:1;overflow:hidden;cursor:pointer}
+.finale-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.7);transition:filter .3s,transform .4s}
+.finale-img:hover img{filter:brightness(1);transform:scale(1.08)}
+@media(max-width:580px){.finale-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* ═══ FOOTER ═══ */
+footer{padding:3rem 2rem;text-align:center;border-top:1px solid rgba(122,143,166,.1)}
+.footer-logo{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--white);margin-bottom:.5rem}
+.footer-logo span{color:var(--gold)}
+.footer-sub{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(122,143,166,.4)}
+
+/* ═══ UTILITY ═══ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{transition:none;opacity:1;transform:none}#hero-bg{transition:none}.photo-item img{transition:none}}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader"><div class="loader-ring"></div><p class="loader-text">Loading memories…</p></div>
+<div id="progress-bar"></div>
+
+<!-- NAV -->
+<nav id="site-nav">
+  <a class="nav-logo" href="#">South<span>west</span> '26</a>
+  <div class="nav-links" id="nav-links"></div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div id="hero-bg"></div>
+  <div id="hero-overlay"></div>
+  <div id="hero-content">
+    <span class="hero-pretitle">June 6 – 14, 2026 &nbsp;·&nbsp; A Family Road Trip</span>
+    <h1>Red Rock<em>&amp; Open Sky</em></h1>
+    <p class="hero-tagline">Eight days. Five national parks. One unforgettable route through<br/>the most dramatic canyon country in North America.</p>
+    <div class="hero-route">
+      <span class="route-stop">Zion</span><span class="route-arrow">→</span>
+      <span class="route-stop">Bryce Canyon</span><span class="route-arrow">→</span>
+      <span class="route-stop">Antelope Canyon</span><span class="route-arrow">→</span>
+      <span class="route-stop">Lake Powell</span><span class="route-arrow">→</span>
+      <span class="route-stop">Horseshoe Bend</span><span class="route-arrow">→</span>
+      <span class="route-stop">Grand Canyon</span><span class="route-arrow">→</span>
+      <span class="route-stop">Las Vegas</span>
+    </div>
+    <button class="hero-cta" onclick="document.getElementById('stats').scrollIntoView({behavior:'smooth'})">Explore the Journey</button>
+  </div>
+  <div class="scroll-cue">
+    <svg width="14" height="18" viewBox="0 0 14 18" fill="none"><path d="M7 1v12M1 9l6 7 6-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Scroll
+  </div>
+</section>
+
+<!-- STATS -->
+<div id="stats">
+  <div class="stat-cell reveal"><div class="stat-n">501</div><div class="stat-l">Photos Taken</div></div>
+  <div class="stat-cell reveal"><div class="stat-n">8</div><div class="stat-l">Days on the Road</div></div>
+  <div class="stat-cell reveal"><div class="stat-n">5</div><div class="stat-l">National Parks</div></div>
+  <div class="stat-cell reveal"><div class="stat-n">∞</div><div class="stat-l">Miles of Wonder</div></div>
+</div>
+
+<!-- ROUTE OVERVIEW -->
+<section id="route-section">
+  <p class="section-eyebrow reveal">The Journey</p>
+  <h2 class="section-title reveal">A loop through<br/>canyon country</h2>
+  <p class="section-body reveal">Starting at Zion's towering sandstone walls and ending poolside in Las Vegas, this route traces the Colorado Plateau — one of the most geologically spectacular regions on Earth. Red rock, slot canyons, hoodoos, and open water. The Southwest doesn't hold back.</p>
+  <div class="route-timeline reveal" id="route-timeline"></div>
+</section>
+
+<!-- GALLERY DAYS -->
+<div id="gallery-container"></div>
+
+<!-- FINALE -->
+<section id="finale">
+  <div class="finale-number">8</div>
+  <div class="finale-content">
+    <p class="finale-eyebrow">Until Next Time</p>
+    <h2 class="finale-title">The canyon walls don't change — but you do.</h2>
+    <p class="finale-body">Every mile of red rock, every paddle stroke on still water, every lookout that made your jaw drop — they're all here now. Saved in light.</p>
+    <div class="finale-grid" id="finale-grid"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">South<span>west</span> '26</div>
+  <p class="footer-sub">June 2026 &nbsp;·&nbsp; 501 photographs &nbsp;·&nbsp; One family</p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" role="dialog" aria-modal="true">
+  <button id="lb-close" aria-label="Close">✕</button>
+  <button class="lb-btn" id="lb-prev" aria-label="Previous">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div id="lb-frame"><img id="lb-img" src="" alt=""/></div>
+  <button class="lb-btn" id="lb-next" aria-label="Next">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 3l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div id="lb-info">
+    <div id="lb-counter"></div>
+    <div id="lb-day"></div>
+    <div id="lb-strip"></div>
+  </div>
+</div>
+
+<script>
+// ═══ DATA ═══
+const DAYS = [
+  {
+    id:'day1', date:'20260606', nav:'Zion', label:'Day 1', displayDate:'June 6, 2026',
+    location:'Zion National Park, Utah',
+    title:'Into the Canyon', subtitle:'Zion National Park · Springdale, UT',
+    hero:'photos/hero/day1.jpg',
+    story:[
+      'The trip begins the way all great Southwest adventures should — with a shuttle bus rattling toward walls of Navajo sandstone that turn the sky into a sliver of blue. Zion swallows you whole.',
+      'We hiked the Emerald Pools trail in the afternoon heat, the Virgin River audible somewhere below. The canyon here doesn\'t just surround you — it makes you feel genuinely small, in the best possible way.'
+    ],
+    highlights:[
+      {icon:'🚌', title:'Zion Shuttle', text:'The park\'s shuttle system drops you right at the trailheads — no car needed inside the canyon.'},
+      {icon:'🏊', title:'Emerald Pools Trail', text:'Multiple tiers of hanging gardens and waterfalls, accessible to most fitness levels.'},
+      {icon:'🌅', title:'The Watchman', text:'That iconic peak looming over Springdale. Every direction you look is a photograph.'},
+      {icon:'🏨', title:'Lodge at the Gateway', text:'Woke up to red cliffs out the window. Worth every penny.'}
+    ],
+    photos: buildRange([
+      {start:1,count:44,prefix:'20260606'}
+    ])
+  },
+  {
+    id:'day2', date:'20260607', nav:'Bryce', label:'Day 2', displayDate:'June 7, 2026',
+    location:'Bryce Canyon National Park, Utah',
+    title:'A Forest of Stone', subtitle:'Bryce Canyon National Park · Elevation 8,000 ft',
+    hero:'photos/hero/day2.jpg',
+    story:[
+      'Nothing prepares you for your first look over the rim at Bryce. Thousands of hoodoos — orange, pink, white — stretch to the horizon like a petrified forest from another world. Photos can\'t do it justice.',
+      'We spent hours hiking among the spires down in the amphitheater, the trail threading between formations taller than buildings. The light shifts constantly at this elevation, painting everything a different shade by the hour.'
+    ],
+    highlights:[
+      {icon:'🗿', title:'Hoodoos', text:'Formed over millions of years by frost wedging and erosion. The largest collection on Earth is right here.'},
+      {icon:'🌲', title:'8,000 ft Elevation', text:'Noticeably cooler than Zion the day before. Brought a layer we were grateful for.'},
+      {icon:'🔭', title:'Sunrise Point', text:'The best vantage in the park. Named for good reason — sunrise here is extraordinary.'},
+      {icon:'🥾', title:'Navajo Loop', text:'Descends right into the canyon floor among the hoodoos. Challenging but unforgettable.'}
+    ],
+    photos: buildRange([
+      {start:45,count:67,prefix:'20260607'},
+      {start:415,count:46,prefix:'20260607'}
+    ])
+  },
+  {
+    id:'day3', date:'20260608', nav:'Scenic Drive', label:'Day 3', displayDate:'June 8, 2026',
+    location:'Bryce Canyon Rim Drive, Utah',
+    title:'Fourteen Overlooks', subtitle:'Bryce Canyon Rim Drive · South Rim Exploration',
+    hero:'photos/hero/day3.jpg',
+    story:[
+      'Day three was slower — a deliberate cruise down the 18-mile scenic drive that strings together fourteen distinct overlooks along the canyon rim. Farview Point at 8,819 feet. Natural Bridge. Rainbow Point.',
+      'This is the part of Bryce most people skip in their rush to hike. That\'s a mistake. The rim drive shows you a completely different scale of the park — vast and open and almost lunar.'
+    ],
+    highlights:[
+      {icon:'🛣️', title:'Rim Drive', text:'18 miles, 14 viewpoints, one continuous jaw-drop. Budget at least half a day.'},
+      {icon:'📍', title:'Farview Point, 8,819 ft', text:'On a clear day you can see into three states from this overlook.'},
+      {icon:'🌉', title:'Natural Bridge', text:'A 54-foot natural arch of Claron limestone, eroded over millennia.'},
+      {icon:'🦌', title:'Wildlife', text:'Pronghorn grazing the meadows between overlooks. Mule deer near the trailheads.'}
+    ],
+    photos: buildRange([
+      {start:112,count:22,prefix:'20260608'}
+    ])
+  },
+  {
+    id:'day4', date:'20260609', nav:'Antelope Canyon', label:'Day 4', displayDate:'June 9, 2026',
+    location:'Antelope Canyon & Page, Arizona',
+    title:'Light in the Narrows', subtitle:'Antelope Canyon · Page, AZ · Navajo Nation',
+    hero:'photos/hero/day4.jpg',
+    story:[
+      'Lower Antelope Canyon is accessed through a narrow crack in the earth and descends into an underground cathedral of wave-polished sandstone. The light that filters down from above moves like something alive.',
+      'The Navajo guides lead you through the corridor pointing out where to look, where the light beams cut through, where the walls glow amber and purple and gold simultaneously. There is no other place on Earth quite like this.'
+    ],
+    highlights:[
+      {icon:'🌊', title:'Wave-Cut Sandstone', text:'Flash floods carved these corridors over thousands of years. The smooth walls hold every hue of the Southwest palette.'},
+      {icon:'☀️', title:'Light Beams', text:'Midday in summer sends shafts of sunlight straight down into the canyon. Truly otherworldly.'},
+      {icon:'🏜️', title:'Navajo Nation', text:'Antelope Canyon sits on sovereign Navajo land. Tours are guided exclusively by Navajo-licensed operators.'},
+      {icon:'📸', title:'Best Shots', text:'Go in the midday window for maximum light. The deeper you go, the more dramatic it gets.'}
+    ],
+    photos: buildRange([
+      {start:134,count:137,prefix:'20260609'},
+      {start:339,count:8,prefix:'20260609'},
+      {start:461,count:41,prefix:'20260609'}
+    ])
+  },
+  {
+    id:'day5', date:'20260610', nav:'Lake Powell', label:'Day 5', displayDate:'June 10, 2026',
+    location:'Lake Powell, Arizona',
+    title:'Paddling the Cathedral', subtitle:'Lake Powell · Glen Canyon Recreation Area',
+    hero:'photos/hero/day5.jpg',
+    story:[
+      'Lake Powell from a kayak is an entirely different experience than any overlook. You\'re inside the canyon walls, not above them — the bleached sandstone rising straight up on both sides, the water a deep emerald green that shouldn\'t exist in the middle of a desert.',
+      'We paddled into narrow side canyons where the walls nearly touched overhead. The silence in there is absolute — just water, rock, and the sound of your own breathing.'
+    ],
+    highlights:[
+      {icon:'🚣', title:'Kayaking', text:'The best way to access the narrow slot canyon inlets is by paddle. Rentals available at Wahweap Marina.'},
+      {icon:'💧', title:'The Color', text:'The water is impossibly green — a product of depth and the light coming off canyon walls below.'},
+      {icon:'🪨', title:'Navajo Sandstone', text:'The bleached white bathtub ring around the canyon walls marks decades of declining water levels.'},
+      {icon:'☀️', title:'Desert Sun', text:'Sunscreen, hats, and lots of water. The lake reflects sun from every direction.'}
+    ],
+    photos: buildRange([
+      {start:271,count:43,prefix:'20260610'},
+      {start:347,count:43,prefix:'20260610'}
+    ])
+  },
+  {
+    id:'day6', date:'20260611', nav:'Horseshoe Bend', label:'Day 6', displayDate:'June 11, 2026',
+    location:'Horseshoe Bend & Grand Canyon South Rim',
+    title:'The Bend & The Rim', subtitle:'Horseshoe Bend · Grand Canyon South Rim',
+    hero:'photos/hero/day6.jpg',
+    story:[
+      'Horseshoe Bend first — the Colorado River making a 270-degree turn 1,000 feet below the overlook. It\'s one of those views where you instinctively step back from the edge, even knowing the fence is there.',
+      'Then the Grand Canyon. You can\'t prepare for the Grand Canyon. Every photograph lies about the scale. Standing at the South Rim, the far wall is 10 miles away. Your brain simply refuses to process the depth.'
+    ],
+    highlights:[
+      {icon:'🌀', title:'Horseshoe Bend', text:'A 1.5-mile round trip from the parking lot. Early morning beats the crowds significantly.'},
+      {icon:'🏔️', title:'Grand Canyon South Rim', text:'Standing at Mather Point, the first overlook, the canyon just refuses to make sense at human scale.'},
+      {icon:'🏨', title:'El Tovar Hotel', text:'The 1905 lodge right on the rim. We had the family photo taken out front — a moment.'},
+      {icon:'🦅', title:'California Condors', text:'Spotted two soaring the thermals along the rim. 9-foot wingspan. Unreal.'}
+    ],
+    photos: buildRange([
+      {start:314,count:21,prefix:'20260611'},
+      {start:390,count:21,prefix:'20260611'}
+    ])
+  },
+  {
+    id:'day7', date:'20260612', nav:'Grand Canyon', label:'Day 7', displayDate:'June 12, 2026',
+    location:'Grand Canyon South Rim, Arizona',
+    title:'One More Morning', subtitle:'Grand Canyon Village · South Rim',
+    hero:'photos/hero/day7.jpg',
+    story:[
+      'We stayed an extra morning at the canyon — the kind of place where one visit is never quite enough. The light at 7am on the South Rim is completely different from the afternoon before. Quieter, cooler, the shadows still long across the inner gorge.',
+      'A rest day, mostly. Tired feet. Full hearts. The kind of tired that comes from spending days looking at things that matter.'
+    ],
+    highlights:[
+      {icon:'🌄', title:'Sunrise at the Rim', text:'The canyon at 6:45am with almost no other visitors. Worth the early alarm.'},
+      {icon:'🛍️', title:'Canyon Village', text:'The gift shops and historic buildings along the rim are worth a slow wander.'},
+      {icon:'💤', title:'Recovery Day', text:'After five full days of hiking and paddling, a slower pace felt exactly right.'},
+      {icon:'📖', title:'Geology Exhibit', text:'The Yavapai Geology Museum explains what you\'re actually looking at. Suddenly everything clicked.'}
+    ],
+    photos: buildRange([
+      {start:335,count:2,prefix:'20260612'},
+      {start:411,count:2,prefix:'20260612'}
+    ])
+  },
+  {
+    id:'day8', date:'20260614', nav:'Las Vegas', label:'Day 8', displayDate:'June 14, 2026',
+    location:'Las Vegas, Nevada',
+    title:'Desert Decompression', subtitle:'Las Vegas, Nevada · The Last Day',
+    hero:'photos/hero/day8.jpg',
+    story:[
+      'Every Southwest road trip ends in Las Vegas — the city that makes no geological sense, rising out of the Mojave like a fever dream after a week of red rock and silence.',
+      'We spent the last day poolside, replaying the week on phones and cameras, arguing over the best view (Bryce at sunrise won, narrowly). Eight days. Five parks. One family. The Southwest delivered.'
+    ],
+    highlights:[
+      {icon:'🏊', title:'Pool Day', text:'After a week of desert hiking, floating in cool water felt like the most luxurious thing imaginable.'},
+      {icon:'🎰', title:'Las Vegas', text:'The contrast after Zion and the Grand Canyon is genuinely disorienting in the best possible way.'},
+      {icon:'✈️', title:'Homeward Bound', text:'Bags packed with rocks, receipts, and a collection of memories that\'ll outlast all of it.'},
+      {icon:'📸', title:'Final Count', text:'501 photos. Zero regrets. The camera never quite captured what the eyes saw, but it came close.'}
+    ],
+    photos: buildRange([
+      {start:337,count:2,prefix:'20260614'},
+      {start:413,count:2,prefix:'20260614'}
+    ])
+  }
+];
+
+function buildRange(ranges){
+  const photos=[];
+  ranges.forEach(r=>{
+    for(let i=0;i<r.count;i++){
+      const n=r.start+i;
+      photos.push(`${r.prefix}_${String(n).padStart(4,'0')}.jpg`);
+    }
+  });
+  return photos;
+}
+
+// ═══ FLAT PHOTO INDEX ═══
+let allPhotos=[];
+DAYS.forEach(day=>{
+  day.photoOffset=allPhotos.length;
+  day.photos.forEach(f=>{allPhotos.push({file:f,dayLabel:day.label,dayLocation:day.location})});
+});
+
+// ═══ ROUTE TIMELINE DATA ═══
+const timelineData=[
+  {date:'Jun 6',place:'Zion National Park',desc:'Angels Landing, Emerald Pools, Virgin River. The vertical world begins.',tag:'Hiking'},
+  {date:'Jun 7',place:'Bryce Canyon',desc:'8,000 feet up, surrounded by thousands of hoodoos in an amphitheater unlike anywhere else.',tag:'Hiking + Scenic'},
+  {date:'Jun 8',place:'Bryce Rim Drive',desc:'14 overlooks, Farview Point, Natural Bridge. A slow day done right.',tag:'Scenic Drive'},
+  {date:'Jun 9',place:'Antelope Canyon',desc:'Underground slot canyons on the Navajo Nation. Light beams, wave sandstone, absolute silence.',tag:'Guided Tour'},
+  {date:'Jun 10',place:'Lake Powell',desc:'Kayaking into flooded canyon arms. The bluest water in the desert.',tag:'Kayaking'},
+  {date:'Jun 11',place:'Horseshoe Bend + Grand Canyon',desc:'The bend at dawn, then the rim that breaks your brain\'s sense of scale.',tag:'Scenic + Hiking'},
+  {date:'Jun 12',place:'Grand Canyon South Rim',desc:'One more morning on the rim. Sunrise light. No crowds. Perfection.',tag:'Morning'},
+  {date:'Jun 14',place:'Las Vegas',desc:'Pool day. End of the road. The desert sends you off in style.',tag:'Rest Day'},
+];
+
+// ═══ BUILD NAV ═══
+const navLinks=document.getElementById('nav-links');
+DAYS.forEach((day,i)=>{
+  const btn=document.createElement('button');
+  btn.className='nav-link';
+  btn.dataset.idx=i;
+  btn.textContent=day.nav;
+  btn.addEventListener('click',()=>{
+    document.getElementById(day.id).scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  navLinks.appendChild(btn);
+});
+
+// ═══ BUILD TIMELINE ═══
+const tl=document.getElementById('route-timeline');
+timelineData.forEach(item=>{
+  const div=document.createElement('div');
+  div.className='timeline-item reveal';
+  div.innerHTML=`
+    <div class="tl-date">${item.date}</div>
+    <div class="tl-dot"></div>
+    <div class="tl-content">
+      <div class="tl-place">${item.place}</div>
+      <div class="tl-desc">${item.desc}</div>
+      <span class="tl-tag">${item.tag}</span>
+    </div>`;
+  tl.appendChild(div);
+});
+
+// ═══ BUILD GALLERY ═══
+const container=document.getElementById('gallery-container');
+DAYS.forEach((day,di)=>{
+  const section=document.createElement('section');
+  section.className='day-section';
+  section.id=day.id;
+
+  const heroHTML=`
+    <div class="day-hero">
+      <img src="${day.hero}" alt="${day.title}" loading="lazy"/>
+      <div class="day-hero-overlay"></div>
+      <div class="day-hero-content">
+        <div class="day-number">${day.label} &nbsp;·&nbsp; ${day.displayDate}</div>
+        <h2 class="day-title">${day.title}</h2>
+        <p class="day-subtitle">${day.subtitle}</p>
+      </div>
+      <div class="day-meta"><span class="day-count-badge">${day.photos.length} photos</span></div>
+    </div>`;
+
+  const storyHTML=day.story.map(p=>`<p>${p}</p>`).join('');
+  const highlightsHTML=day.highlights.map(h=>`
+    <div class="highlight-item">
+      <span class="hi-icon">${h.icon}</span>
+      <div class="hi-text"><strong>${h.title}</strong>${h.text}</div>
+    </div>`).join('');
+
+  const introHTML=`
+    <div class="day-intro reveal">
+      <div class="day-story">${storyHTML}</div>
+      <div class="day-highlights">${highlightsHTML}</div>
+    </div>`;
+
+  // Photo grid
+  const grid=document.createElement('div');
+  grid.className='photo-grid';
+  const offset=day.photoOffset;
+  day.photos.forEach((fname,pi)=>{
+    const item=document.createElement('div');
+    item.className='photo-item';
+    item.dataset.index=offset+pi;
+    const img=document.createElement('img');
+    img.src=`photos/thumb/${fname}`;
+    img.alt=`${day.location} photo ${pi+1}`;
+    img.loading='lazy';
+    img.decoding='async';
+    const num=document.createElement('span');
+    num.className='photo-num';
+    num.textContent=`${pi+1}/${day.photos.length}`;
+    item.appendChild(img);
+    item.appendChild(num);
+    item.addEventListener('click',()=>openLightbox(offset+pi));
+    grid.appendChild(item);
+  });
+
+  const bodyDiv=document.createElement('div');
+  bodyDiv.className='day-body';
+  bodyDiv.innerHTML=introHTML;
+  bodyDiv.appendChild(grid);
+
+  section.innerHTML=heroHTML;
+  section.appendChild(bodyDiv);
+
+  if(di<DAYS.length-1){
+    const rule=document.createElement('div');
+    rule.className='canyon-rule';
+    rule.innerHTML='<hr/>';
+    section.appendChild(rule);
+  }
+
+  container.appendChild(section);
+});
+
+// ═══ FINALE GRID ═══
+const finaleGrid=document.getElementById('finale-grid');
+const finalePhotos=[
+  '20260606_0030.jpg','20260607_0060.jpg','20260609_0200.jpg',
+  '20260610_0290.jpg','20260611_0320.jpg',
+  '20260607_0090.jpg','20260609_0134.jpg','20260610_0271.jpg',
+  '20260611_0400.jpg','20260606_0001.jpg'
+];
+finalePhotos.forEach((f,i)=>{
+  const globalIdx=allPhotos.findIndex(p=>p.file===f);
+  const div=document.createElement('div');
+  div.className='finale-img';
+  div.innerHTML=`<img src="photos/thumb/${f}" alt="Trip highlight" loading="lazy"/>`;
+  div.addEventListener('click',()=>openLightbox(globalIdx>=0?globalIdx:0));
+  finaleGrid.appendChild(div);
+});
+
+// ═══ LIGHTBOX ═══
+let currentIndex=0;
+const lb=document.getElementById('lightbox');
+const lbImg=document.getElementById('lb-img');
+const lbCounter=document.getElementById('lb-counter');
+const lbDay=document.getElementById('lb-day');
+const lbStrip=document.getElementById('lb-strip');
+
+function openLightbox(idx){
+  currentIndex=Math.max(0,Math.min(idx,allPhotos.length-1));
+  showPhoto();
+  lb.classList.add('open');
+  document.body.style.overflow='hidden';
+  buildStrip();
+}
+function closeLightbox(){lb.classList.remove('open');document.body.style.overflow='';}
+function showPhoto(){
+  const p=allPhotos[currentIndex];
+  lbImg.classList.add('loading');
+  const tmp=new Image();
+  tmp.onload=()=>{lbImg.src=tmp.src;lbImg.classList.remove('loading');};
+  tmp.src=`photos/large/${p.file}`;
+  lbCounter.textContent=`${currentIndex+1} / ${allPhotos.length}`;
+  lbDay.textContent=`${p.dayLabel} · ${p.dayLocation}`;
+  updateStrip();
+}
+function buildStrip(){
+  lbStrip.innerHTML='';
+  const start=Math.max(0,currentIndex-4);
+  const end=Math.min(allPhotos.length-1,currentIndex+5);
+  for(let i=start;i<=end;i++){
+    const img=document.createElement('img');
+    img.className='strip-thumb'+(i===currentIndex?' active':'');
+    img.src=`photos/thumb/${allPhotos[i].file}`;
+    img.alt='';
+    img.dataset.idx=i;
+    img.addEventListener('click',()=>{currentIndex=i;showPhoto();updateStrip();});
+    lbStrip.appendChild(img);
+  }
+}
+function updateStrip(){
+  lbStrip.querySelectorAll('.strip-thumb').forEach(t=>{
+    const i=parseInt(t.dataset.idx);
+    t.classList.toggle('active',i===currentIndex);
+  });
+  // Scroll active into view
+  const active=lbStrip.querySelector('.strip-thumb.active');
+  if(active) active.scrollIntoView({block:'nearest',inline:'center'});
+}
+function prev(){currentIndex=(currentIndex-1+allPhotos.length)%allPhotos.length;showPhoto();buildStrip();}
+function next(){currentIndex=(currentIndex+1)%allPhotos.length;showPhoto();buildStrip();}
+
+document.getElementById('lb-close').addEventListener('click',closeLightbox);
+document.getElementById('lb-prev').addEventListener('click',prev);
+document.getElementById('lb-next').addEventListener('click',next);
+lb.addEventListener('click',e=>{if(e.target===lb||e.target.id==='lb-frame')closeLightbox();});
+document.addEventListener('keydown',e=>{
+  if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')closeLightbox();
+  if(e.key==='ArrowLeft')prev();
+  if(e.key==='ArrowRight')next();
+});
+let tx=0;
+lb.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+lb.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>50){dx<0?next():prev();}
+});
+
+// ═══ SCROLL EFFECTS ═══
+// Nav scroll state
+window.addEventListener('scroll',()=>{
+  const nav=document.getElementById('site-nav');
+  nav.classList.toggle('scrolled',window.scrollY>80);
+  // Progress bar
+  const pct=window.scrollY/(document.body.scrollHeight-window.innerHeight)*100;
+  document.getElementById('progress-bar').style.width=pct+'%';
+  // Active nav tab
+  let activeDay=null;
+  DAYS.forEach((day,i)=>{
+    const el=document.getElementById(day.id);
+    if(el){const r=el.getBoundingClientRect();if(r.top<200)activeDay=i;}
+  });
+  document.querySelectorAll('.nav-link').forEach((l,i)=>l.classList.toggle('active',i===activeDay));
+},{passive:true});
+
+// Reveal on scroll
+const revealObserver=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObserver.unobserve(e.target);}});
+},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+// Also observe dynamically added reveals
+const mutObs=new MutationObserver(()=>{
+  document.querySelectorAll('.reveal:not(.observed)').forEach(el=>{el.classList.add('observed');revealObserver.observe(el);});
+});
+mutObs.observe(document.getElementById('gallery-container'),{childList:true,subtree:true});
+
+// Hero background drift
+window.addEventListener('load',()=>{
+  document.getElementById('hero-bg').classList.add('loaded');
+  setTimeout(()=>{
+    const loader=document.getElementById('loader');
+    loader.classList.add('done');
+    setTimeout(()=>loader.remove(),700);
+  },600);
+});
+</script>
+</body>
+</html>
